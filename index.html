@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budget</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="./assets/logo.png" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <!-- component -->
+        <div class="bg-white h-screen w-full">
+            <div class="grid grid-cols-12 gap-0 h-full w-full">
+                <div class="bg-fixed relative col-span-12 sm:col-span-12 md:col-span-7 lg:col-span-8 xxl:col-span-8 hidden md:block"
+                    style="
+              background-image: url('https://i.pinimg.com/originals/74/79/b0/7479b0e55f61567d40b0709a4d1b95d9.gif');
+              background-size: cover;
+            ">
+                    <div
+                        class="absolute inset-0 z-20 flex items-center justify-center h-full bg-gray-900 bg-opacity-50">
+                        <div class="flex flex-col justify-center gap-20 h-full items-center fixed top-0">
+                            <p class="text-white text-5xl lg:text-7xl">
+                                <span class="border-2 p-4 rounded-md" id="time">{{greeting}}</span>
+                            </p>
+                            <p class="text-white text-5xl lg:text-7xl">
+                                <span class="border-2 p-4 rounded-md" id="time">{{currentTime}}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="col-span-12 sm:col-span-12 md:col-span-5 lg:col-span-4 xxl:col-span-4 relative flex justify-center items-center">
+                    <div class="w-full h-full">
+                        <div class="border-b">
+                            <div class="my-4 px-6">
+                                <h2 class="font-semibold text-2xl">Budget Tracker</h2>
+                            </div>
+                        </div>
+                        <div class="px-8 py-2 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-lg text-gray-500 font-thin">Your Balance</h4>
+                                <h4 class="text-2xl font-semibold" :class="balance > 0 ? 'text-green-400' : 'text-red-400'">{{currency}} {{formatIndianCommaSystem(balance) || '-'}}</h4>
+                            </div>
+                            <div>
+                                <button @click="toggleForm"
+                                    class="w-[100px] bg-blue-600 text-white p-2 rounded-md flex justify-center items-center gap-4">
+                                    <span>Add</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                        <path
+                                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex space-x-0 flex-col lg:flex-row lg:space-x-2 my-2 px-6">
+                            <div class="bg-green-600 p-4 border-2 rounded-md shadow-lg w-full text-white text-center">
+                                <h1 class="text-xl font-light">INCOME</h1>
+                                <h1 class="text-2xl text-green-100 font-semibold">
+                                    {{currency}} {{formatIndianCommaSystem(income) || '-'}}
+                                </h1>
+                            </div>
+                            <div class="bg-red-600 p-4 border-2 rounded-md shadow-lg w-full text-white text-center">
+                                <h1 class="text-xl font-light">EXPENSE</h1>
+                                <h1 class="text-2xl text-red-100 font-semibold">{{currency}} {{formatIndianCommaSystem(expense) || '-'}}</h1>
+                            </div>
+                        </div>
+                        <div class="px-8 my-6">
+                            <div class="py-2 border-b w-full flex justify-between items-center">
+                                <h2 class="font-semibold text-lg">History</h2>
+                                <svg class="cursor-pointer"  @click="clearHistory" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="red" class="bi bi-trash3" viewBox="0 0 16 16">
+                                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                  </svg>
+                            </div>
+                            <template v-if="history.length > 0" v-for="(item, index) in history" :key="index">
+
+                                <div class="ml-6 relative bg-white p-4 border-r-8 shadow-md my-4 flex justify-between "
+                                    :class="item.type == 'income' ? 'border-green-500' : 'border-red-500'">
+                                    <div class="absolute -left-6">
+                                        <div 
+                                            class="cursor-pointer bg-red-600 p-2 w-6 flex items-center text-xs text-white justify-center cursor-pointer" @click="removeItem(item.id)">
+                                            x
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="uppercase">{{item.text}}</p>
+                                    </div>
+                                    <div>
+                                        <p>{{currency}} {{formatIndianCommaSystem(item.amount)}}</p>
+                                    </div>
+                                </div>
+
+                            </template>
+                            <div v-else class="">
+                                <p class="text-center">No Records Found!</p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div v-if="isFormActive" class="px-8 my-6 absolute  bg-white p-4 border-2 rounded-md w-[80%] ">
+                        <div class="py-4 border-b w-full flex justify-between items-center">
+                            <h2 class="font-semibold text-lg">Add new transaction</h2>
+                            <svg @click="toggleForm" class="cursor-pointer" xmlns="http://www.w3.org/2000/svg"
+                                width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                <path
+                                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                            </svg>
+                        </div>
+                        <div class="w-full">
+                            <form class="mt-4">
+                                <div class="my-5 text-sm">
+                                    <label htmlFor="text" class="block text-black">Text</label>
+                                    <input type="text" v-model="transaction.text" autofocus
+                                        class="rounded-sm px-4 py-3 mt-1 focus:outline-none bg-gray-100 w-full"
+                                        placeholder="Enter Text" />
+                                </div>
+                                <div class="my-5 text-sm">
+                                    <label htmlFor="text" class="block text-black">Expence Type</label>
+                                    <div class="flex justify-center items-center gap-4 pt-3">
+                                        <label for="expence"
+                                            class=" cursor-pointer text-center w-full p-2 border border-red-500 rounded-md font-semibold"
+                                            :class="transaction.type == 'expence' ? 'bg-red-500 text-white' : 'text-red-400 bg-white'">Expence</label>
+                                        <label for="income"
+                                            class=" cursor-pointer text-center w-full p-2 border border-green-500 rounded-md font-semibold"
+                                            :class="transaction.type == 'income' ? 'bg-green-500 text-white' : 'text-green-400 bg-white'">Income</label>
+                                        <input v-model="transaction.type" id="expence" value="expence" type="radio"
+                                            name="expenceType" autofocus hidden />
+                                        <input v-model="transaction.type" id="income" value="income" type="radio"
+                                            name="expenceType" autofocus hidden />
+                                    </div>
+                                </div>
+                                <div class="my-5 text-sm">
+                                    <label htmlFor="amount" class="block text-black">
+                                        Amount
+                                    </label>
+                                    <input v-model="transaction.amount" type="number" autofocus
+                                        class="rounded-sm px-4 py-3 mt-1 focus:outline-none bg-gray-100 w-full"
+                                        placeholder="Enter Amount" />
+                                </div>
+                                <div class="my-5">
+                                    <button @click="saveTransaction" type="button"
+                                        class="rounded-md block text-center text-white bg-blue-800 p-3 duration-300 hover:bg-blue-600 w-full">
+                                        Add Transaction
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
