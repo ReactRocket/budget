@@ -5,6 +5,7 @@ const app = Vue.createApp({
       greeting: null,
       currency: "₹",
       balance: null,
+      loanDeductedBalance: null,
       income: null,
       expense: null,
       loan: null,
@@ -90,6 +91,7 @@ const app = Vue.createApp({
         let tempExpense = 0;
         let tempLoan = 0;
         let tempBalance = 0;
+        let tempLoanDeductedBalance = 0;
 
         if (!!val && val.length > 0) {
           this.history.forEach((element) => {
@@ -97,14 +99,16 @@ const app = Vue.createApp({
             else if (element.type === "expense") tempExpense += element.amount;
             else if (element.type === "loan") tempLoan += element.amount;
           });
-          tempBalance = tempIncome - (tempExpense + tempLoan);
+          tempBalance = tempIncome - tempExpense;
+          tempLoanDeductedBalance = tempIncome - (tempExpense + tempLoan);
 
           this.income = tempIncome;
           this.expense = tempExpense;
           this.loan = tempLoan;
           this.balance = tempBalance;
+          this.loanDeductedBalance = tempLoanDeductedBalance;
         } else {
-          this.balance = this.income = this.expense = this.loan = null;
+          this.balance = this.income = this.expense = this.loan = this.loanDeductedBalance = null;
         }
       },
       immediate: true,

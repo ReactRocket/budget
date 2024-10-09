@@ -90,8 +90,9 @@
                             </div>
                         </div>
                         <div class="border-b">
-                            <div class="my-4 px-6">
+                            <div class="my-4 px-6 flex justify-between items-center">
                                 <h2 class="font-semibold text-2xl">Smart Spending</h2>
+                                <h3 class="font-semibold text-xl text-gray-500">{{currentTime}}</h3>
                             </div>
                         </div>
                         <div class="px-8 py-2 flex justify-between items-center">
@@ -99,6 +100,11 @@
                                 <h4 class="text-lg text-gray-500 font-thin">Your Balance</h4>
                                 <h4 class="text-2xl font-semibold" :class="balance > 0 ? 'text-green-400' : 'text-red-400'">{{currency}}
                                     {{formatIndianCommaSystem(balance) || '0'}}</h4>
+                               <div class="flex justify-start items-center gap-2">
+                                <span class="text-lg font-semibold" :class="loanDeductedBalance > 0 ? 'text-green-200' : 'text-red-200'">{{currency}}
+                                    {{formatIndianCommaSystem(loanDeductedBalance) || '0'}}</span> 
+                                    <span class="text-gray-400 text-xs">(After Load Deduction)</span>
+                               </div>
                             </div>
                             <div>
                                 <button @click="toggleForm"
