@@ -2,16 +2,17 @@ const app = Vue.createApp({
   data() {
     return {
       currentTime: null,
-      greeting:null,
+      greeting: null,
       currency: "₹",
       balance: null,
       income: null,
       expense: null,
+      loan: null,
       history: [],
       transaction: {
         id: Date.now(),
         text: null,
-        type: "expence",
+        type: "expense", // Updated to support "loan"
         amount: null,
       },
       isFormActive: false,
@@ -24,6 +25,11 @@ const app = Vue.createApp({
     }
   },
   methods: {
+    getFullTime(timeInMilliseconds){
+      // Convert to a Date object
+      const date = new Date(timeInMilliseconds);
+      return [date.toLocaleTimeString(), date.toLocaleDateString()]; // Full date with time
+    },
     toggleForm() {
       this.isFormActive = !this.isFormActive;
     },
@@ -32,24 +38,18 @@ const app = Vue.createApp({
         const str = number.toString();
         if (str.length <= 3) return str; // Handles numbers with 3 or fewer digits
 
-        // Separate the last three digits
         const lastThree = str.slice(-3);
-        // Get the rest of the number
         const otherNumbers = str.slice(0, -3);
-
-        // Format the rest of the number
         const formatted = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
 
         return formatted + "," + lastThree;
       }
     },
     removeItem(id) {
-        if (window.confirm("Are you sure you want to delete?")) {
-            // Use filter to remove the item with the matching id
-            this.history = this.history.filter(item => item.id !== id);
-            // Save the updated history to localStorage
-            localStorage.setItem("budget-history", JSON.stringify(this.history));
-        }
+      if (window.confirm("Are you sure you want to delete?")) {
+        this.history = this.history.filter(item => item.id !== id);
+        localStorage.setItem("budget-history", JSON.stringify(this.history));
+      }
     },
     clearHistory() {
       if (window.confirm("Are you sure you want to clear the history?")) {
@@ -58,17 +58,13 @@ const app = Vue.createApp({
       }
     },
     saveTransaction() {
-      if (
-        !!this.transaction.text &&
-        !!this.transaction.type &&
-        !!this.transaction.amount
-      ) {
-        this.history.push(this.transaction);
+      if (!!this.transaction.text && !!this.transaction.type && !!this.transaction.amount) {
+        this.history.push({ ...this.transaction, id: Date.now() });
         localStorage.setItem("budget-history", JSON.stringify(this.history));
         this.transaction = {
           id: Date.now(),
           text: null,
-          type: "expence",
+          type: "expense",
           amount: null,
         };
         this.isFormActive = false;
@@ -82,11 +78,7 @@ const app = Vue.createApp({
       var minutes = currentTimeDate.getMinutes();
       minutes = minutes < 10 ? "0" + minutes : minutes;
       var AMPM = hours >= 12 ? "PM" : "AM";
-      if (hours === 12) {
-        hours = 12;
-      } else {
-        hours = hours % 12;
-      }
+      hours = hours % 12 || 12; // Adjust for 12-hour format
       this.currentTime = `${hours}:${minutes}${AMPM}`;
       setTimeout(this.getCurrentTimeDate, 500);
     },
@@ -96,42 +88,38 @@ const app = Vue.createApp({
       handler(val) {
         let tempIncome = 0;
         let tempExpense = 0;
+        let tempLoan = 0;
         let tempBalance = 0;
+
         if (!!val && val.length > 0) {
           this.history.forEach((element) => {
-            element.type === "income"
-              ? (tempIncome += element.amount)
-              : (tempExpense += element.amount);
+            if (element.type === "income") tempIncome += element.amount;
+            else if (element.type === "expense") tempExpense += element.amount;
+            else if (element.type === "loan") tempLoan += element.amount;
           });
-          tempBalance = tempIncome - tempExpense;
+          tempBalance = tempIncome - (tempExpense + tempLoan);
 
           this.income = tempIncome;
           this.expense = tempExpense;
+          this.loan = tempLoan;
           this.balance = tempBalance;
         } else {
-          this.balance = null;
-          this.income = null;
-          this.expense = null;
+          this.balance = this.income = this.expense = this.loan = null;
         }
       },
       immediate: true,
       deep: true,
     },
-    currentTime:{
-        handler(val){
-            if (!!val) {
-                const hours = val.split(":")[0]
-                if (hours >= 0 && hours < 12) {
-                    this.greeting = 'Good Morning';
-                }else if (hours >= 12 && hours < 17) {
-                    this.greeting = 'Good Afternoon';
-                }else if (hours >= 17 && hours < 20) {
-                    this.greeting = 'Good Evening';
-                }else{
-                    this.greeting = 'Good Night';
-                }
-            }
+    currentTime: {
+      handler(val) {
+        if (!!val) {
+          const hours = val.split(":")[0];
+          if (hours >= 0 && hours < 12) this.greeting = "Good Morning";
+          else if (hours >= 12 && hours < 17) this.greeting = "Good Afternoon";
+          else if (hours >= 17 && hours < 20) this.greeting = "Good Evening";
+          else this.greeting = "Good Night";
         }
+      }
     }
   },
 });
